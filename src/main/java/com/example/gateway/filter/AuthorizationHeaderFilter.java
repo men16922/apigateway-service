@@ -31,7 +31,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             ServerHttpRequest request = exchange.getRequest();
 
             if(!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                return onError(exchange, "Mo authorization header", HttpStatus.UNAUTHORIZED);
+                return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
             }
 
             String authorizationHeader = request.getHeaders().get(org.springframework.http.HttpHeaders.AUTHORIZATION).get(0);
@@ -50,11 +50,14 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         boolean returnValue = true;
 
         String subject = null;
+        log.info("JWT -{}", jwt);
 
         try {
+            log.info("token -{}", env.getProperty("token.secret"));
             subject = Jwts.parser().setSigningKey(env.getProperty("token.secret"))
                     .parseClaimsJws(jwt).getBody()
                     .getSubject();
+
         } catch (Exception ex) {
             returnValue = false;
         }
